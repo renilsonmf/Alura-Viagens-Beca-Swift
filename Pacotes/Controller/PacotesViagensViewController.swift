@@ -41,21 +41,13 @@ class PacotesViagensViewController: UIViewController, UICollectionViewDataSource
             "celulaPacote", for: indexPath) as! PacoteViagemCollectionViewCell
         
         let pacoteAtual = listaViagens[indexPath.item]
-        celulaPacote.labelTitulo.text = pacoteAtual.viagem.titulo
-        celulaPacote.labelQuantidadeDias.text = "\(pacoteAtual.viagem.quantidadeDeDias) dias"
-        celulaPacote.labelPreco.text = "R$ \(pacoteAtual.viagem.preco)"
-        celulaPacote.imagemViagem.image = UIImage(named: pacoteAtual.viagem.caminhoDaImagem)
-        
-        celulaPacote.layer.borderWidth = 0.5
-        celulaPacote.layer.borderColor = UIColor(red: 85.0/255.0, green: 85.0/255.0, blue: 85.0/255.0, alpha:1).cgColor
-        celulaPacote.layer.cornerRadius = 8
+        celulaPacote.configuraCelula(pacoteViagem: pacoteAtual)
         return celulaPacote
     }
     
-    //Espaçamento da stack view
+    //Espaçamento da stack view para cada celular
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let larguraCelula = collectionView.bounds.width / 2
-        return CGSize(width: larguraCelula-15, height: 160)
+        return UIDevice.current.userInterfaceIdiom == .phone ? CGSize(width: collectionView.bounds.width/2-20, height: 160) : CGSize(width: collectionView.bounds.width/3-20 , height: 250)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -64,14 +56,14 @@ class PacotesViagensViewController: UIViewController, UICollectionViewDataSource
         let controller = storyboard.instantiateViewController(withIdentifier: "detalhes")
             as! DetalhesViagensViewController
         controller.pacoteSelecionado = pacote
-        self.present(controller, animated: true, completion: nil)
+        self.navigationController?.pushViewController(controller, animated: true)
     }
     
     // pegando o que o usuario digitou no search utilizando o titulo como base
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         listaViagens = listaComTodasViagens
         if searchText != "" {
-            let filtroListaViagem = NSPredicate(format: "titulo contains %@", searchText)
+            let filtroListaViagem = NSPredicate(format: "viagem.titulo contains %@", searchText)
             let listaFiltrada: Array<PacoteViagem> = (listaViagens as NSArray).filtered(using: filtroListaViagem) as! Array
             listaViagens = listaFiltrada
         }
@@ -80,6 +72,6 @@ class PacotesViagensViewController: UIViewController, UICollectionViewDataSource
     }
     // Atualiza a label de pacotes encontrados de acordo com a quantidade
     func atualizaContadorLabel() -> String{
-        return listaViagens.count == 1 ? "1 Pacote encontrado" : "\(listaViagens.count) pacote encontrado"
+        return listaViagens.count == 1 ? "1 Pacote encontrado" : "\(listaViagens.count) pacotes encontrados"
     }
 }
